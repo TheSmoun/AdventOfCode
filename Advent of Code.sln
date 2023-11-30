@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{76ACC197-63D5-4106-B6AA-A575164F0DF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoC.2023", "src\AoC.2023\AoC.2023.csproj", "{08C5B1F3-DBC0-4931-B163-2BDCA24AA18C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoC.Shared", "src\AoC.Shared\AoC.Shared.csproj", "{30A93B79-D5ED-4D91-9CB6-CAAB1850FB56}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{2977929E-7CC6-4B7B-BE0B-F3C6EBDFB8B4}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{08C5B1F3-DBC0-4931-B163-2BDCA24AA18C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08C5B1F3-DBC0-4931-B163-2BDCA24AA18C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08C5B1F3-DBC0-4931-B163-2BDCA24AA18C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08C5B1F3-DBC0-4931-B163-2BDCA24AA18C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30A93B79-D5ED-4D91-9CB6-CAAB1850FB56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30A93B79-D5ED-4D91-9CB6-CAAB1850FB56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30A93B79-D5ED-4D91-9CB6-CAAB1850FB56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30A93B79-D5ED-4D91-9CB6-CAAB1850FB56}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{08C5B1F3-DBC0-4931-B163-2BDCA24AA18C} = {76ACC197-63D5-4106-B6AA-A575164F0DF9}
+		{30A93B79-D5ED-4D91-9CB6-CAAB1850FB56} = {76ACC197-63D5-4106-B6AA-A575164F0DF9}
+	EndGlobalSection
+EndGlobal
