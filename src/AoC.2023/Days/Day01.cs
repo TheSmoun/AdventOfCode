@@ -5,7 +5,7 @@ namespace AoC._2023.Days;
 
 public sealed class Day01 : DayBase<IEnumerable<string>, int>
 {
-    protected override string Name => "Day 1: Calorie Counting";
+    protected override string Name => "Day 1: Trebuchet?!";
 
     protected override IEnumerable<string> ParseInput(IEnumerable<string> lines) => lines;
 
