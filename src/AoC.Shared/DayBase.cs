@@ -59,3 +59,8 @@ public abstract class DayBase<TInput, TResult> : DayBase
     protected abstract TResult RunPart1(TInput input);
     protected abstract TResult RunPart2(TInput input);
 }
+
+public abstract class DayBase<TResult> : DayBase<IEnumerable<string>, TResult>
+{
+    protected override IEnumerable<string> ParseInput(IEnumerable<string> lines) => lines;
+}

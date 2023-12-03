@@ -3,11 +3,9 @@ using AoC.Shared;
 
 namespace AoC._2023.Days;
 
-public sealed class Day01 : DayBase<IEnumerable<string>, int>
+public sealed class Day01 : DayBase<int>
 {
     protected override string Name => "Day 1: Trebuchet?!";
-
-    protected override IEnumerable<string> ParseInput(IEnumerable<string> lines) => lines;
 
     protected override int RunPart1(IEnumerable<string> input)
     {
