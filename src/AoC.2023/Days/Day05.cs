@@ -3,80 +3,132 @@ using MoreLinq;
 
 namespace AoC._2023.Days;
 
-public sealed class Day05 : DayBase<List<Day05.SeedMap>, long>
+public sealed class Day05 : DayBase<Day05.Almanac, long>
 {
     protected override string Name => "Day 5: If You Give A Seed A Fertilizer";
 
-    protected override List<SeedMap> ParseInput(IEnumerable<string> lines)
+    protected override Almanac ParseInput(IEnumerable<string> lines)
     {
         var parts = lines.Split(string.Empty).ToList();
         var seeds = parts[0]
             .First()[7..]
             .Split(' ')
-            .Select(s => new SeedMap(long.Parse(s)))
+            .Select(long.Parse)
             .ToList();
-        
-        ApplyMap(seeds, parts[1], s => s.Seed, s => s.Soil, (s, l) => s.Soil = l);
-        ApplyMap(seeds, parts[2], s => s.Soil, s => s.Fertilizer, (s, l) => s.Fertilizer = l);
-        ApplyMap(seeds, parts[3], s => s.Fertilizer, s => s.Water, (s, l) => s.Water = l);
-        ApplyMap(seeds, parts[4], s => s.Water, s => s.Light, (s, l) => s.Light = l);
-        ApplyMap(seeds, parts[5], s => s.Light, s => s.Temperature, (s, l) => s.Temperature = l);
-        ApplyMap(seeds, parts[6], s => s.Temperature, s => s.Humidity, (s, l) => s.Humidity = l);
-        ApplyMap(seeds, parts[7], s => s.Humidity, s => s.Location, (s, l) => s.Location = l);
 
-        return seeds;
-    }
-
-    protected override long RunPart1(List<SeedMap> input)
-        => input.Min(s => s.Location);
-
-    protected override long RunPart2(List<SeedMap> input)
-    {
-        return 0;
-    }
-
-    private static void ApplyMap(List<SeedMap> seeds, IEnumerable<string> map, Func<SeedMap, long> sourceGetter,
-        Func<SeedMap, long> targetGetter, Action<SeedMap, long> setter)
-    {
-        foreach (var seed in seeds)
-        {
-            setter(seed, sourceGetter(seed));
-        }
-        
-        foreach (var mapRow in map.Skip(1))
-        {
-            var mapRowNumbers = mapRow.Split(' ').Select(long.Parse).ToArray();
-            var destinationStart = mapRowNumbers[0];
-            var sourceStart = mapRowNumbers[1];
-            var length = mapRowNumbers[2];
-
-            foreach (var seed in seeds)
+        var seedRanges = parts[0]
+            .First()[7..]
+            .Split(' ')
+            .Chunk(2)
+            .Select(c => new SeedRange
             {
-                var source = sourceGetter(seed);
-                var target = targetGetter(seed);
-                if (sourceStart > source || sourceStart + length < source || source != target)
-                    continue;
+                Start = long.Parse(c[0]),
+                Length = long.Parse(c[1]),
+            })
+            .ToList();
+
+        var maps = new List<Map>();
+        foreach (var mapPart in parts.Skip(1))
+        {
+            var map = new Map();
+            maps.Add(map);
+
+            foreach (var mapLine in mapPart.Skip(1))
+            {
+                var mapRowNumbers = mapLine.Split(' ').Select(long.Parse).ToArray();
+                var destinationStart = mapRowNumbers[0];
+                var sourceStart = mapRowNumbers[1];
+                var length = mapRowNumbers[2];
                 
-                var diff = source - sourceStart;
-                setter(seed, destinationStart + diff);
+                map.Add(new MapEntry
+                {
+                    DestinationStart = destinationStart,
+                    SourceStart = sourceStart,
+                    Length = length,
+                });
             }
         }
-    }
-    
-    public class SeedMap
-    {
-        public long Seed { get; }
-        public long Soil { get; set; }
-        public long Fertilizer { get; set; }
-        public long Water { get; set; }
-        public long Light { get; set; }
-        public long Temperature { get; set; }
-        public long Humidity { get; set; }
-        public long Location { get; set; }
-        
-        public SeedMap(long seed)
+
+        return new Almanac
         {
-            Seed = seed;
+            Seeds = seeds,
+            SeedRanges = seedRanges,
+            Maps = maps,
+        };
+    }
+
+    protected override long RunPart1(Almanac input)
+        => input.Process(input.Seeds, false).Min();
+
+    protected override long RunPart2(Almanac input)
+    {
+        var location = 0L;
+        while (true)
+        {
+            var seed = input.Process(location, true);
+            if (input.SeedRanges.Any(r => r.Contains(seed)))
+                break;
+
+            location++;
+        }
+        
+        return location;
+    }
+
+    public class Almanac
+    {
+        public required List<long> Seeds { get; init; }
+        public required List<SeedRange> SeedRanges { get; init; }
+        public required List<Map> Maps { get; init; }
+
+        public List<long> Process(List<long> seeds, bool invert)
+            => seeds.Select(s => Process(s, invert)).ToList();
+
+        public long Process(long seed, bool invert)
+            => Maps.Aggregate(seed, (l, map) => map.Apply(l, invert));
+    }
+
+    public class SeedRange
+    {
+        public required long Start { get; init; }
+        public required long Length { get; init; }
+
+        public bool Contains(long seed)
+        {
+            return seed >= Start && seed <= Start + Length;
+        }
+    }
+
+    public class Map : List<MapEntry>
+    {
+        public long Apply(long seed, bool invert)
+        {
+            return this
+                .Select(e => e.Transform(seed, invert))
+                .FirstOrDefault(v => v.HasValue) ?? seed;
+        }
+    }
+
+    public class MapEntry
+    {
+        public required long DestinationStart { get; init; }
+        public required long SourceStart { get; init; }
+        public required long Length { get; init; }
+        
+        public long? Transform(long input, bool invert)
+        {
+            if (invert)
+                return Transform(input, DestinationStart, SourceStart, Length);
+            
+            return Transform(input, SourceStart, DestinationStart, Length);
+        }
+
+        private static long? Transform(long input, long sourceStart, long destinationStart, long length)
+        {
+            if (input >= sourceStart && input <= sourceStart + length)
+                return destinationStart + input - sourceStart;
+
+            return null;
         }
     }
 }
