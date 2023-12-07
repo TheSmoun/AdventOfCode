@@ -72,14 +72,14 @@ public sealed class Day05 : DayBase<Day05.Almanac, long>
     {
         public List<LongRange> Apply(List<LongRange> ranges)
         {
-            var result = new List<LongRange>();
             var queue = ranges.ToQueue();
-
+            var result = new List<LongRange>();
+            
             while (queue.Count > 0)
             {
                 var range = queue.Dequeue();
+                
                 var mapped = false;
-
                 foreach (var entry in this)
                 {
                     var (min, max) = range.Intersect(entry.Source);
@@ -90,10 +90,10 @@ public sealed class Day05 : DayBase<Day05.Almanac, long>
                     result.Add(LongRange.FromStartAndLength(min - entry.Source.Start + entry.Destination.Start, max - min));
 
                     if (min > range.Start)
-                        result.Add(LongRange.FromStartAndLength(range.Start, min - range.Start));
+                        queue.Enqueue(LongRange.FromStartAndLength(range.Start, min - range.Start));
                     
                     if (max < range.Start + range.Length)
-                        result.Add(LongRange.FromStartAndLength(max, range.Start + range.Length - max));
+                        queue.Enqueue(LongRange.FromStartAndLength(max, range.Start + range.Length - max));
 
                     break;
                 }
@@ -118,49 +118,32 @@ public sealed class Day05 : DayBase<Day05.Almanac, long>
         }
     }
 
-    public readonly struct LongRange : IEquatable<LongRange>
+    public readonly struct LongRange
     {
         public long Start { get; }
-        public long End { get; }
         public long Length { get; }
 
-        private LongRange(long start, long end, long length)
+        private LongRange(long start, long length)
         {
             Start = start;
-            End = end;
             Length = length;
         }
 
         public static LongRange FromStartAndLength(long start, long length)
         {
-            return new LongRange(start, start + length - 1, length);
+            return new LongRange(start, length);
         }
 
         public static LongRange FromStartAndEnd(long start, long end)
         {
-            return new LongRange(start, end, end - start + 1);
+            return new LongRange(start, end - start + 1);
         }
 
-        public (long Min, long Max) Intersect(LongRange range)
+        public (long, long) Intersect(LongRange range)
         {
             var min = Math.Max(Start, range.Start);
             var max = Math.Min(Start + Length, range.Start + range.Length);
             return (min, max);
-        }
-
-        public bool Equals(LongRange other)
-        {
-            return Start == other.Start && End == other.End && Length == other.Length;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is LongRange other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Start, End, Length);
         }
     }
 }
