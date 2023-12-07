@@ -29,20 +29,77 @@ public class Day07 : DayBase<List<Day07.Hand>, long>
 
     protected override long RunPart2(List<Hand> input)
     {
-        return 0;
+        foreach (var hand in input)
+        {
+            hand.ComputeHighestPossibleHand();
+        }
+
+        return RunPart1(input);
     }
 
     public class Hand : IComparable<Hand>
     {
         public List<Card> Cards { get; }
         public long Bid { get; }
-        public HandResult Result { get; }
+        public HandResult Result { get; private set; }
 
         public Hand(List<Card> cards, long bid)
         {
             Cards = cards;
             Bid = bid;
             Result = HandResult.GetHighestResult(cards);
+        }
+
+        public void ComputeHighestPossibleHand()
+        {
+            for (var i = 0; i < Cards.Count; i++)
+            {
+                if (Cards[i] == Card.Jack)
+                    Cards[i] = Card.Joker;
+            }
+
+            if (Cards.All(c => c != Card.Joker))
+                return;
+
+            HandResult maxResult = default!;
+
+            foreach (var card0 in GetPossibleCardsForIndex(0))
+            {
+                foreach (var card1 in GetPossibleCardsForIndex(1))
+                {
+                    foreach (var card2 in GetPossibleCardsForIndex(2))
+                    {
+                        foreach (var card3 in GetPossibleCardsForIndex(3))
+                        {
+                            foreach (var card4 in GetPossibleCardsForIndex(4))
+                            {
+                                var cards = new List<Card>
+                                {
+                                    card0,
+                                    card1,
+                                    card2,
+                                    card3,
+                                    card4
+                                };
+
+                                var result = HandResult.GetHighestResult(cards);
+                                if (result.Score > (maxResult?.Score ?? -1))
+                                    maxResult = result;
+                            }
+                        }
+                    }
+                }
+            }
+
+            Result = maxResult;
+        }
+
+        private List<Card> GetPossibleCardsForIndex(int i)
+        {
+            if (Cards[i] != Card.Joker)
+                return new List<Card> { Cards[i] };
+
+            return Card.NonJokerCards;
         }
 
         public int CompareTo(Hand? other)
@@ -80,6 +137,24 @@ public class Day07 : DayBase<List<Day07.Hand>, long>
         public static readonly Card Four = new("4", '4', 4);
         public static readonly Card Three = new("3", '3', 3);
         public static readonly Card Two = new("2", '2', 2);
+        public static readonly Card Joker = new("Joker", 'J', 0);
+
+        public static readonly List<Card> NonJokerCards = new List<Card>
+        {
+            Ace,
+            King,
+            Queen,
+            Jack,
+            Ten,
+            Nine,
+            Eight,
+            Seven,
+            Six,
+            Five,
+            Four,
+            Three,
+            Two,
+        };
         
         public string Name { get; }
         public char Symbol { get; }
@@ -111,6 +186,16 @@ public class Day07 : DayBase<List<Day07.Hand>, long>
                 '2' => Two,
                 _ => throw new UnreachableException()
             };
+        }
+
+        public static bool operator ==(Card left, Card right)
+        {
+            return left.Points == right.Points;
+        }
+
+        public static bool operator !=(Card left, Card right)
+        {
+            return !(left == right);
         }
 
         public int CompareTo(Card? other)
