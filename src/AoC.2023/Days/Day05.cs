@@ -1,4 +1,5 @@
 ﻿using AoC.Shared;
+using AoC.Shared.Extensions;
 using MoreLinq;
 
 namespace AoC._2023.Days;
@@ -14,17 +15,14 @@ public sealed class Day05 : DayBase<Day05.Almanac, long>
             .First()[7..]
             .Split(' ')
             .Select(long.Parse)
+            .Select(s => LongRange.FromStartAndEnd(s, s))
             .ToList();
 
         var seedRanges = parts[0]
             .First()[7..]
             .Split(' ')
             .Chunk(2)
-            .Select(c => new SeedRange
-            {
-                Start = long.Parse(c[0]),
-                Length = long.Parse(c[1]),
-            })
+            .Select(c => LongRange.FromStartAndLength(long.Parse(c[0]), long.Parse(c[1])))
             .ToList();
 
         var maps = new List<Map>();
@@ -40,12 +38,7 @@ public sealed class Day05 : DayBase<Day05.Almanac, long>
                 var sourceStart = mapRowNumbers[1];
                 var length = mapRowNumbers[2];
                 
-                map.Add(new MapEntry
-                {
-                    DestinationStart = destinationStart,
-                    SourceStart = sourceStart,
-                    Length = length,
-                });
+                map.Add(new MapEntry(sourceStart, destinationStart, length));
             }
         }
 
@@ -58,77 +51,116 @@ public sealed class Day05 : DayBase<Day05.Almanac, long>
     }
 
     protected override long RunPart1(Almanac input)
-        => input.Process(input.Seeds, false).Min();
+        => input.Process(input.Seeds);
 
     protected override long RunPart2(Almanac input)
-    {
-        var location = 0L;
-        while (true)
-        {
-            var seed = input.Process(location, true);
-            if (input.SeedRanges.Any(r => r.Contains(seed)))
-                break;
-
-            location++;
-        }
-        
-        return location;
-    }
+        => input.Process(input.SeedRanges);
 
     public class Almanac
     {
-        public required List<long> Seeds { get; init; }
-        public required List<SeedRange> SeedRanges { get; init; }
+        public required List<LongRange> Seeds { get; init; }
+        public required List<LongRange> SeedRanges { get; init; }
         public required List<Map> Maps { get; init; }
 
-        public List<long> Process(List<long> seeds, bool invert)
-            => seeds.Select(s => Process(s, invert)).ToList();
-
-        public long Process(long seed, bool invert)
-            => Maps.Aggregate(seed, (l, map) => map.Apply(l, invert));
-    }
-
-    public class SeedRange
-    {
-        public required long Start { get; init; }
-        public required long Length { get; init; }
-
-        public bool Contains(long seed)
-        {
-            return seed >= Start && seed <= Start + Length;
-        }
+        public long Process(List<LongRange> ranges)
+            => Maps
+                .Aggregate(ranges, (r, m) => m.Apply(r))
+                .Min(r => r.Start);
     }
 
     public class Map : List<MapEntry>
     {
-        public long Apply(long seed, bool invert)
+        public List<LongRange> Apply(List<LongRange> ranges)
         {
-            return this
-                .Select(e => e.Transform(seed, invert))
-                .FirstOrDefault(v => v.HasValue) ?? seed;
+            var result = new List<LongRange>();
+            var queue = ranges.ToQueue();
+
+            while (queue.Count > 0)
+            {
+                var range = queue.Dequeue();
+                var mapped = false;
+
+                foreach (var entry in this)
+                {
+                    var (min, max) = range.Intersect(entry.Source);
+                    if (max <= min)
+                        continue;
+
+                    mapped = true;
+                    result.Add(LongRange.FromStartAndLength(min - entry.Source.Start + entry.Destination.Start, max - min));
+
+                    if (min > range.Start)
+                        result.Add(LongRange.FromStartAndLength(range.Start, min - range.Start));
+                    
+                    if (max < range.Start + range.Length)
+                        result.Add(LongRange.FromStartAndLength(max, range.Start + range.Length - max));
+
+                    break;
+                }
+                
+                if (!mapped)
+                    result.Add(range);
+            }
+
+            return result;
         }
     }
 
     public class MapEntry
     {
-        public required long DestinationStart { get; init; }
-        public required long SourceStart { get; init; }
-        public required long Length { get; init; }
-        
-        public long? Transform(long input, bool invert)
+        public LongRange Source { get; }
+        public LongRange Destination { get; }
+
+        public MapEntry(long sourceStart, long destinationStart, long length)
         {
-            if (invert)
-                return Transform(input, DestinationStart, SourceStart, Length);
-            
-            return Transform(input, SourceStart, DestinationStart, Length);
+            Source = LongRange.FromStartAndLength(sourceStart, length);
+            Destination = LongRange.FromStartAndLength(destinationStart, length);
+        }
+    }
+
+    public readonly struct LongRange : IEquatable<LongRange>
+    {
+        public long Start { get; }
+        public long End { get; }
+        public long Length { get; }
+
+        private LongRange(long start, long end, long length)
+        {
+            Start = start;
+            End = end;
+            Length = length;
         }
 
-        private static long? Transform(long input, long sourceStart, long destinationStart, long length)
+        public static LongRange FromStartAndLength(long start, long length)
         {
-            if (input >= sourceStart && input <= sourceStart + length)
-                return destinationStart + input - sourceStart;
+            return new LongRange(start, start + length - 1, length);
+        }
 
-            return null;
+        public static LongRange FromStartAndEnd(long start, long end)
+        {
+            return new LongRange(start, end, end - start + 1);
+        }
+
+        public (long Min, long Max) Intersect(LongRange range)
+        {
+            var min = Math.Max(Start, range.Start);
+            var max = Math.Min(Start + Length, range.Start + range.Length);
+            return (min, max);
+        }
+
+        public bool Equals(LongRange other)
+        {
+            return Start == other.Start && End == other.End && Length == other.Length;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is LongRange other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Start, End, Length);
         }
     }
 }
