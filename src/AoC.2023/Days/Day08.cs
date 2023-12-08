@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using AoC.Shared;
+using AoC.Shared.Extensions;
 using AoC.Shared.Lib;
 using MoreLinq;
 
@@ -71,7 +72,24 @@ public partial class Day08 : DayBase<Day08.Input, long>
 
     protected override long RunPart2(Input input)
     {
-        throw new NotImplementedException();
+        return input.Graph
+            .GetAllMatchingNodes(n => n.Value[2] == 'A')
+            .Select(n => RunForNode(n, input.Instructions))
+            .Lcm();
+    }
+
+    private long RunForNode(GraphNode<string> node, List<char> instructions)
+    {
+        var count = 0;
+        while (node.Value[2] != 'Z')
+        {
+            var instruction = instructions[count % instructions.Count];
+            var index = instruction == 'L' ? 0 : 1;
+            node = node.Next[index];
+            count++;
+        }
+
+        return count;
     }
 
     public class Input

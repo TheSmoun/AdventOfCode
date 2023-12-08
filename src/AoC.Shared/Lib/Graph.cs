@@ -16,4 +16,9 @@ public class Graph<T>
     {
         return NodesByValue[value];
     }
+
+    public IEnumerable<GraphNode<T>> GetAllMatchingNodes(Func<GraphNode<T>, bool> predicate)
+    {
+        return Nodes.Where(predicate);
+    }
 }
