@@ -24,6 +24,11 @@ public readonly struct Vec2<TNumber> : IEquatable<Vec2<TNumber>>
         return !(left == right);
     }
 
+    public static Vec2<TNumber> operator +(Vec2<TNumber> left, Vec2<TNumber> right)
+    {
+        return new Vec2<TNumber>(left.X + right.X, left.Y + right.Y);
+    }
+
     public bool Equals(Vec2<TNumber> other)
     {
         return EqualityComparer<TNumber>.Default.Equals(X, other.X)
