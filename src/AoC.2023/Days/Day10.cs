@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using AoC.Shared;
 using AoC.Shared.Math;
-using MoreLinq;
 
 namespace AoC._2023.Days;
 

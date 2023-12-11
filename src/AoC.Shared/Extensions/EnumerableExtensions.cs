@@ -57,7 +57,13 @@ public static class EnumerableExtensions
     public static IEnumerable<(T, T)> Pairs<T>(this IEnumerable<T> input)
     {
         var a = input as T[] ?? input.ToArray();
-        return a.SelectMany(x => a, (x, y) => (x, y)).Where(t => !ReferenceEquals(t.x, t.y));
+        for (var i = 0; i < a.Length; i++)
+        {
+            for (var j = i + 1; j < a.Length; j++)
+            {
+                yield return (a[i], a[j]);
+            }
+        }
     }
 
     public static IEnumerable<T> RepeatItems<T>(this IEnumerable<T> input, int times)
