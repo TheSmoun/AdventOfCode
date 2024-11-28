@@ -3,13 +3,15 @@ using AoC.Shared;
 
 namespace AoC._2023.Days;
 
-public sealed class Day01 : DayBase<int>
+public sealed class Day01 : DayBase<IEnumerable<string>, int, FileInputReader>
 {
     protected override string Name => "Day 1: Trebuchet?!";
 
+    protected override IEnumerable<string> ParseInput(IEnumerable<string> lines) => lines;
+
     protected override int RunPart1(IEnumerable<string> input)
     {
-        return input.Sum(l =>
+        return input.Where(l => l.Length > 0).Sum(l =>
         {
             var firstDigit = l.SkipWhile(c => !char.IsDigit(c)).First() - '0';
             var lastDigit = l.Reverse().SkipWhile(c => !char.IsDigit(c)).First() - '0';
@@ -19,7 +21,7 @@ public sealed class Day01 : DayBase<int>
 
     protected override int RunPart2(IEnumerable<string> input)
     {
-        return input.Sum(l =>
+        return input.Where(l => l.Length > 0).Sum(l =>
         {
             var firstDigit = FindFirstDigit(l, 0, 1);
             var lastDigit = FindFirstDigit(l, l.Length - 1, -1);
