@@ -15,12 +15,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
-      - name: Navigate to project folder
-        run: cd "src/${{ matrix.year }}/Day${{ matrix.day }}"
       - name: Restore dependencies
-        run: dotnet restore "Day${{ matrix.day }}.csproj"
+        run: dotnet restore "src/${{ matrix.year }}/Day${{ matrix.day }}/Day${{ matrix.day }}.csproj"
       - name: Publish
-        run: dotnet publish "Day${{ matrix.day }}.csproj" -c Release -r linux-x64
+        run: dotnet publish "src/${{ matrix.year }}/Day${{ matrix.day }}/Day${{ matrix.day }}.csproj" -c Release -r linux-x64
       - name: Artifacts
         uses: actions/upload-artifact@v4
         with:
