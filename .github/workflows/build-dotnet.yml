@@ -18,9 +18,9 @@ jobs:
       - name: Navigate to project folder
         run: cd "src/${{ matrix.year }}/Day${{ matrix.day }}"
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore "Day${{ matrix.day }}.csproj"
       - name: Publish
-        run: dotnet publish -c Release -r linux-x64
+        run: dotnet publish "Day${{ matrix.day }}.csproj" -c Release -r linux-x64
       - name: Artifacts
         uses: actions/upload-artifact@v4
         with:
