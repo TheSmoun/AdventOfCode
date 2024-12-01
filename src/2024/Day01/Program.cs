@@ -5,12 +5,10 @@
     var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
-var partList = lines.Select(l => l.Split(' ', StringSplitOptions.RemoveEmptyEntries)).ToList();
-
-var leftNumbers = partList.Select(l => int.Parse(l[0])).ToList();
+var leftNumbers = lines.Select(l => int.Parse(l.AsSpan().Slice(0, 5))).ToList();
 leftNumbers.Sort();
 
-var rightNumbers = partList.Select(l => int.Parse(l[1])).ToList();
+var rightNumbers = lines.Select(l => int.Parse(l.AsSpan().Slice(8, 5))).ToList();
 rightNumbers.Sort();
 
 var difference = 0;
