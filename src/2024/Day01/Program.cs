@@ -2,7 +2,7 @@
     var lines = File.ReadAllLines("input.txt");
 #else
     using var reader = new StreamReader(Console.OpenStandardInput(), Console.InputEncoding);
-    var lines = reader.ReadToEnd().Split('\n');
+    var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
 var partList = lines.Select(l => l.Split(' ', StringSplitOptions.RemoveEmptyEntries)).ToList();
