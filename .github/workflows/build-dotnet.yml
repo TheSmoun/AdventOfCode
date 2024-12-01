@@ -21,3 +21,9 @@ jobs:
         run: dotnet restore
       - name: Publish
         run: dotnet publish -c Release -r linux-x64
+      - name: Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: runnable
+          path: |
+            src/${{ matrix.year }}/Day${{ matrix.day }}/bin/Release/net9.0/linux-x64/publish
