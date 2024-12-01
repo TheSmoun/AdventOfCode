@@ -1,7 +1,7 @@
 name: TheSmoun AoC Builder
 on:
   push:
-    branches: [$default-branch]
+    branches: [ 'master' ]
 jobs:
   Build-Donet:
     runs-on: mcr.microsoft.com/dotnet/sdk:9.0
