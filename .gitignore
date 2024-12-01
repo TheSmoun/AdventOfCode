@@ -258,3 +258,7 @@ terraform.rc
 
 deployment/static-files/
 !deployment/static-files/.gitkeep
+
+
+# Inputs
+*.txt
