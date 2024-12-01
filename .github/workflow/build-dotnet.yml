@@ -1,0 +1,19 @@
+name: TheSmoun AoC Builder
+on:
+  push:
+    branches: [$default-branch]
+jobs:
+  Build-Donet:
+    runs-on: mcr.microsoft.com/dotnet/sdk:9.0
+    strategy:
+      matrix:
+        year: ['2024']
+        day: ['01']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Navigate to project folder
+        run: cd "src/${{ matrix.year }}/Day${{ matrix.day }}"
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Publish
+        run: dotnet publish -c Release -r linux-x64
