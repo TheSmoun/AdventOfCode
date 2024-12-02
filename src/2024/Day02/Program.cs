@@ -5,14 +5,14 @@ using var reader = new StreamReader(Console.OpenStandardInput(), Console.InputEn
 var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
-var reports = lines.Select(l => l.Split(' ').Select(int.Parse).ToList()).ToList();
+var reports = lines.Select(l => l.Split(' ').Select(int.Parse).ToArray()).ToArray();
 
 var part1Count = 0;
 var part2Count = 0;
 
-foreach (var report in reports)
+for (var i = 0; i < reports.Length; i++)
 {
-    var (isSaveForPart1, isSaveForPart2) = CheckReport(report);
+    var (isSaveForPart1, isSaveForPart2) = CheckReport(reports[i]);
 
     if (isSaveForPart1)
     {
@@ -30,7 +30,7 @@ Console.WriteLine("Part 2: " + part2Count);
 
 return;
 
-static (bool IsSaveForPart1, bool IsSaveForPart2) CheckReport(List<int> report)
+static (bool IsSaveForPart1, bool IsSaveForPart2) CheckReport(int[] report)
 {
     int start;
     int end;
@@ -46,7 +46,7 @@ static (bool IsSaveForPart1, bool IsSaveForPart2) CheckReport(List<int> report)
         end = -1;
     }
     
-    var (isSaveForPart1, unsafeIndex) = IsSave(report, start, end);
+    var (isSaveForPart1, unsafeIndex) = IsSave(report, start, end, -1);
     if (isSaveForPart1)
     {
         return (true, true);
@@ -54,8 +54,7 @@ static (bool IsSaveForPart1, bool IsSaveForPart2) CheckReport(List<int> report)
 
     for (var i = Math.Max(0, unsafeIndex - 1); i <= unsafeIndex + 1; i++)
     {
-        List<int> reportToTest = [..report[..i], ..report[(i + 1)..]];
-        var (isSaveForPart2, _) = IsSave(reportToTest, start, end);
+        var (isSaveForPart2, _) = IsSave(report, start, end, i);
         if (isSaveForPart2)
         {
             return (false, true);
@@ -65,15 +64,24 @@ static (bool IsSaveForPart1, bool IsSaveForPart2) CheckReport(List<int> report)
     return (false, false);
 }
 
-static (bool, int) IsSave(List<int> report, int start, int end)
+static (bool, int) IsSave(int[] report, int start, int end, int skip)
 {
-    for (var i = 0; i < report.Count - 1; i++)
+    var prev = report[skip == 0 ? 1 : 0];
+    
+    for (var i = skip == 0 ? 2 : 1; i < report.Length; i++)
     {
-        var diff = report[i + 1] - report[i];
+        if (i == skip)
+            continue;
+        
+        var curr = report[i];
+        var diff = curr - prev;
+        
         if (diff < start || diff > end)
         {
-            return (false, i + 1);
+            return (false, i);
         }
+        
+        prev = curr;
     }
 
     return (true, -1);
