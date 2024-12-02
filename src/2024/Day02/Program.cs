@@ -1,8 +1,8 @@
 ﻿#if DEBUG
 var lines = File.ReadAllLines("input.txt");
 #else
-    using var reader = new StreamReader(Console.OpenStandardInput(), Console.InputEncoding);
-    var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
+using var reader = new StreamReader(Console.OpenStandardInput(), Console.InputEncoding);
+var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
 var reports = lines.Select(l => l.Split(' ').Select(int.Parse).ToList()).ToList();
@@ -32,27 +32,6 @@ return;
 
 static (bool IsSaveForPart1, bool IsSaveForPart2) CheckReport(List<int> report)
 {
-    var (isSaveForPart1, unsafeIndex) = IsSave(report);
-    if (isSaveForPart1)
-    {
-        return (true, true);
-    }
-
-    for (var i = unsafeIndex > 0 ? unsafeIndex - 1 : unsafeIndex; i <= unsafeIndex + 1; i++)
-    {
-        List<int> reportToTest = [..report[..i], ..report[(i + 1)..]];
-        var (isSaveForPart2, _) = IsSave(reportToTest);
-        if (isSaveForPart2)
-        {
-            return (false, true);
-        }
-    }
-
-    return (false, false);
-}
-
-static (bool, int) IsSave(List<int> report)
-{
     int start;
     int end;
 
@@ -67,6 +46,27 @@ static (bool, int) IsSave(List<int> report)
         end = -1;
     }
     
+    var (isSaveForPart1, unsafeIndex) = IsSave(report, start, end);
+    if (isSaveForPart1)
+    {
+        return (true, true);
+    }
+
+    for (var i = Math.Max(0, unsafeIndex - 1); i <= unsafeIndex + 1; i++)
+    {
+        List<int> reportToTest = [..report[..i], ..report[(i + 1)..]];
+        var (isSaveForPart2, _) = IsSave(reportToTest, start, end);
+        if (isSaveForPart2)
+        {
+            return (false, true);
+        }
+    }
+
+    return (false, false);
+}
+
+static (bool, int) IsSave(List<int> report, int start, int end)
+{
     for (var i = 0; i < report.Count - 1; i++)
     {
         var diff = report[i + 1] - report[i];
