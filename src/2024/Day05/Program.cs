@@ -5,11 +5,10 @@ using var reader = new StreamReader(Console.OpenStandardInput(), Console.InputEn
 var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
-var rules = new HashSet<OrderRule>();
-
 var i = 0;
-
 string line;
+
+var rules = new HashSet<OrderRule>();
 while (i < lines.Length && (line = lines[i++]) != string.Empty)
 {
     var span = line.AsSpan();
@@ -28,26 +27,22 @@ while (i < lines.Length && (line = lines[i++]) != string.Empty)
 var comparer = new PrintOrderRuleComparer(rules);
 
 var part1 = 0;
-foreach (var print in prints)
-{
-    if (print.SequenceEqual(print.Order(comparer)))
-    {
-        part1 += print[print.Count / 2];
-    }
-}
-
-Console.WriteLine($"Part 1: {part1}");
-
 var part2 = 0;
+
 foreach (var print in prints)
 {
     var orderedPrint = print.Order(comparer).ToList();
-    if (!orderedPrint.SequenceEqual(print))
+    if (print.SequenceEqual(orderedPrint))
+    {
+        part1 += print[print.Count / 2];
+    }
+    else
     {
         part2 += orderedPrint[orderedPrint.Count / 2];
     }
 }
 
+Console.WriteLine($"Part 1: {part1}");
 Console.WriteLine($"Part 2: {part2}");
 
 internal readonly struct OrderRule : IEquatable<OrderRule>
