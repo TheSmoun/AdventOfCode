@@ -70,7 +70,25 @@ while (IsOnMap(pos, maxX, maxY))
 
 var part1 = guardLines.SelectMany(l => l.GetAllPoints()).ToHashSet().Count;
 
+HashSet<Vec2> part2 = [];
+
+for (var i = 3; i < guardLines.Count; i++)
+{
+    var line2 = guardLines[i];
+    
+    for (var j = 0; j < i - 2; j++)
+    {
+        var line1 = guardLines[j];
+        
+        if (line1.TryGetIntersectionWithInfiniteLine(line2, out var intersection) && rotations[line2.Direction].Equals(line1.Direction))
+        {
+            part2.Add(intersection);
+        }
+    }
+}
+
 Console.WriteLine($"Part 1: {part1}");
+Console.WriteLine($"Part 2: {part2.Count}");
 
 return;
 
@@ -99,6 +117,11 @@ internal readonly struct Vec2 : IEquatable<Vec2>
     {
         return new Vec2(a.X - b.X, a.Y - b.Y);
     }
+
+    public static int operator *(Vec2 a, Vec2 b)
+    {
+        return a.X * b.Y - a.Y * b.X;
+    }
     
     public bool Equals(Vec2 other)
     {
@@ -113,6 +136,11 @@ internal readonly struct Vec2 : IEquatable<Vec2>
     public override int GetHashCode()
     {
         return HashCode.Combine(X, Y);
+    }
+
+    public override string ToString()
+    {
+        return $"({X}, {Y})";
     }
 }
 
@@ -141,38 +169,25 @@ internal readonly struct Line2 : IEquatable<Line2>
         }
     }
     
-    public bool TryGetIntersection(Line2 line, out Vec2 intersection)
+    public bool TryGetIntersectionWithInfiniteLine(Line2 segment, out Vec2 intersection)
     {
         intersection = default;
 
-        var x1 = Start.X;
-        var y1 = Start.Y;
-        var x2 = End.X;
-        var y2 = End.Y;
-        var x3 = line.Start.X;
-        var y3 = line.Start.Y;
-        var x4 = line.End.X;
-        var y4 = line.End.Y;
+        var lineDir = End - Start;
+        var segmentDir = segment.End - segment.Start;
+        var denominator = lineDir * segmentDir;
 
-        var denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
         if (denominator == 0)
             return false;
 
-        var numerator1 = x1 * y2 - y1 * x2;
-        var numerator2 = x3 * y4 - y3 * x4;
+        var startDiff = segment.Start - Start;
+        var t = (float) (startDiff * lineDir) / denominator;
 
-        var px = (numerator1 * (x3 - x4) - (x1 - x2) * numerator2) / denominator;
-        var py = (numerator1 * (y3 - y4) - (y1 - y2) * numerator2) / denominator;
+        if (t is < 0 or > 1)
+            return false;
 
-        var potentialIntersection = new Vec2(px, py);
-
-        if (IsPointOnLineSegment(potentialIntersection) && line.IsPointOnLineSegment(potentialIntersection))
-        {
-            intersection = potentialIntersection;
-            return true;
-        }
-
-        return false;
+        intersection = new Vec2((int)(segment.Start.X + t * segmentDir.X), (int)(segment.Start.Y + t * segmentDir.Y));
+        return true;
     }
 
     public bool Equals(Line2 other)
@@ -189,18 +204,9 @@ internal readonly struct Line2 : IEquatable<Line2>
     {
         return HashCode.Combine(Start, End, Direction);
     }
-    
-    private bool IsPointOnLineSegment(Vec2 point)
-    {
-        var x = point.X;
-        var y = point.Y;
-        var x1 = Start.X;
-        var y1 = Start.Y;
-        var x2 = End.X;
-        var y2 = End.Y;
 
-        return x >= Math.Min(x1, x2) && x <= Math.Max(x1, x2) &&
-                y >= Math.Min(y1, y2) && y <= Math.Max(y1, y2) &&
-               (x2 - x1) * (y - y1) == (y2 - y1) * (x - x1);
+    public override string ToString()
+    {
+        return $"{Start} -> {End} <{Direction}>";
     }
 }
