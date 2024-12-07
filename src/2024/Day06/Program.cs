@@ -71,28 +71,25 @@ while (IsOnMap(pos, maxX, maxY))
     }
 }
 
-var part1 = guardLines.SelectMany(l => l.GetAllPoints()).ToHashSet().Count;
+var guardPositions = guardLines.SelectMany(l => l.GetAllPoints()).ToHashSet();
 
-Console.WriteLine($"Part 1: {part1}");
+Console.WriteLine($"Part 1: {guardPositions.Count}");
 
 var part2 = 0;
 
-for (var y = 0; y < maxY; y++)
+foreach (var guardPosition in guardPositions)
 {
-    for (var x = 0; x < maxX; x++)
-    {
-        if (map[y, x] || startPos.Equals(new Vec2(x, y)))
-            continue;
-        
-        var mapCopy = new bool[maxY, maxX];
-        Array.Copy(map, mapCopy, mapCopy.Length);
-        
-        mapCopy[y, x] = true;
+    if (startPos.Equals(guardPosition))
+        continue;
+    
+    var mapCopy = new bool[maxY, maxX];
+    Array.Copy(map, mapCopy, mapCopy.Length);
+    
+    mapCopy[guardPosition.Y, guardPosition.X] = true;
 
-        if (CheckForLoop(mapCopy, startPos, startDir, maxX, maxY, rotations))
-        {
-            part2++;
-        }
+    if (CheckForLoop(mapCopy, startPos, startDir, maxX, maxY, rotations))
+    {
+        part2++;
     }
 }
 
