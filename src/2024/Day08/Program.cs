@@ -23,6 +23,7 @@ for (var y = 0; y < lines.Length; y++)
 }
 
 var part1 = new HashSet<Vec2>();
+var part2 = new HashSet<Vec2>();
 
 for (var i = 0; i < sensors.Count - 1; i++)
 {
@@ -43,24 +44,7 @@ for (var i = 0; i < sensors.Count - 1; i++)
         var antinodeB = sensorB.Position + diff;
         if (antinodeB.IsWithinBounds(mapTopLeft, mapBottomRight))
             part1.Add(antinodeB);
-    }
-}
-
-Console.WriteLine($"Part 1: {part1.Count}");
-
-var part2 = new HashSet<Vec2>();
-
-for (var i = 0; i < sensors.Count - 1; i++)
-{
-    var sensorA = sensors[i];
-
-    for (var j = i + 1; j < sensors.Count; j++)
-    {
-        var sensorB = sensors[j];
-        if (sensorA.Symbol != sensorB.Symbol)
-            continue;
-
-        var diff = sensorB.Position - sensorA.Position;
+        
         var gcd = Gcd(Math.Abs(diff.X), Math.Abs(diff.Y));
         
         var step = new Vec2(diff.X / gcd, diff.Y / gcd);
@@ -81,6 +65,7 @@ for (var i = 0; i < sensors.Count - 1; i++)
     }
 }
 
+Console.WriteLine($"Part 1: {part1.Count}");
 Console.WriteLine($"Part 2: {part2.Count}");
 
 return;
