@@ -17,9 +17,11 @@ foreach (var towel in towels)
     }
 }
 
-var patterns = lines.Skip(2).ToArray();
+var patterns = lines.Skip(2).Where(p => IsPossible(p, filteredTowels)).ToArray();
+Console.WriteLine($"Part 1: {patterns.Length}");
 
-Console.WriteLine($"Part 1: {patterns.Count(p => IsPossible(p, filteredTowels))}");
+var possibilities = new Dictionary<string, long>();
+Console.WriteLine($"Part 2: {patterns.Sum(GetPossibilities)}");
 
 return;
 
@@ -35,4 +37,23 @@ bool IsPossible(ReadOnlySpan<char> pattern, List<string> parts)
     }
     
     return false;
+}
+
+long GetPossibilities(string pattern)
+{
+    if (possibilities.TryGetValue(pattern, out var count))
+        return count;
+
+    count = 0;
+    foreach (var towel in towels)
+    {
+        if (pattern.Length == 0)
+            return 1;
+        
+        if (pattern.StartsWith(towel))
+            count += GetPossibilities(pattern[towel.Length..]);
+    }
+    
+    possibilities[pattern] = count;
+    return count;
 }
