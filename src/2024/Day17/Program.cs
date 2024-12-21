@@ -14,20 +14,46 @@ var computer = new Computer(registerA, registerB, registerC, instructions);
 computer.Run();
 
 Console.WriteLine($"Part 1: {string.Join(',', computer.Outputs)}");
+Console.WriteLine($"Part 2: {CalcA(0, instructions.Length - 1)}");
+
+return;
+
+long CalcA(long a, int i)
+{
+    if (i < 0)
+        return a;
+    
+    var expected = instructions[i];
+    
+    a <<= 3;
+    for (var j = 0; j < 8; j++)
+    {
+        computer = new Computer(a + j, 0, 0, instructions);
+        var output = computer.RunUntilOutput();
+        if (output == expected)
+        {
+            var nestedResult = CalcA(a + j, i - 1);
+            if (nestedResult >= 0)
+                return nestedResult;
+        }
+    }
+
+    return -1;
+}
 
 internal class Computer
 {
     public List<int> Outputs { get; } = [];
     
-    private int _registerA;
-    private int _registerB;
-    private int _registerC;
+    private long _registerA;
+    private long _registerB;
+    private long _registerC;
     private int _instructionPointer;
 
     private readonly int[] _instructions;
     private readonly Action<int>[] _operations;
     
-    public Computer(int registerA, int registerB, int registerC, int[] instructions)
+    public Computer(long registerA, long registerB, long registerC, int[] instructions)
     {
         _registerA = registerA;
         _registerB = registerB;
@@ -51,15 +77,30 @@ internal class Computer
     {
         while (_instructionPointer < _instructions.Length - 1)
         {
-            var instruction = _instructions[_instructionPointer++];
-            var operand = _instructions[_instructionPointer++];
-            _operations[instruction](operand);
+            Step();
         }
     }
 
+    public int RunUntilOutput()
+    {
+        while (_instructionPointer < _instructions.Length - 1 && Outputs.Count == 0)
+        {
+            Step();
+        }
+        
+        return Outputs[0];
+    }
+
+    private void Step()
+    {
+        var instruction = _instructions[_instructionPointer++];
+        var operand = _instructions[_instructionPointer++];
+        _operations[instruction](operand);
+    }
+    
     private void Adv(int operand)
     {
-        _registerA = (int) (_registerA / Math.Pow(2, ToComboOperand(operand)));
+        _registerA >>= (int) ToComboOperand(operand);
     }
 
     private void Bxl(int operand)
@@ -87,20 +128,20 @@ internal class Computer
 
     private void Out(int operand)
     {
-        Outputs.Add(ToComboOperand(operand) % 8);
+        Outputs.Add((int) (ToComboOperand(operand) % 8));
     }
 
     private void Bdv(int operand)
     {
-        _registerB = (int) (_registerA / Math.Pow(2, ToComboOperand(operand)));
+        _registerB = _registerA >> (int) ToComboOperand(operand);
     }
 
     private void Cdv(int operand)
     {
-        _registerC = (int) (_registerA / Math.Pow(2, ToComboOperand(operand)));
+        _registerC = _registerA >> (int) ToComboOperand(operand);
     }
 
-    private int ToComboOperand(int operand)
+    private long ToComboOperand(int operand)
     {
         return operand switch
         {
