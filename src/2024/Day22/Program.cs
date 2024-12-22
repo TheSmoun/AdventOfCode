@@ -25,7 +25,7 @@ foreach (var seed in seeds)
         var diff4 = prices[4] - prices[3];
         
         var diffs = (diff1, diff2, diff3, diff4);
-        if (!sequenceResults.ContainsKey((diff1, diff2, diff3, diff4)))
+        if (!sequenceResults.ContainsKey(diffs))
         {
             sequenceResults[diffs] = prices[4];
         }
