@@ -23,6 +23,7 @@ for (var y = 0; y < height; y++)
 var index = 0;
 var queue = new Stack<Tile>();
 var areas = new List<List<Tile>>();
+var areaId = 0;
 
 for (var y = 0; y < height; y++)
 {
@@ -44,6 +45,15 @@ var part1 = areas.Sum(a =>
 });
 
 Console.WriteLine($"Part 1: {part1}");
+
+var part2 = areas.Sum(a =>
+{
+    var area = a.Count;
+    var fences = GetFenceCount(a);
+    return area * fences;
+});
+
+Console.WriteLine($"Part 2: {part2}");
 
 return;
 
@@ -72,16 +82,129 @@ void StrongConnect(Tile tile)
     if (tile.LowLink == tile.Index)
     {
         var area = new List<Tile>();
-
+        var currentAreaId = areaId++;
+        
         Tile nextTile;
         do
         {
             nextTile = queue.Pop();
             nextTile.InQueue = false;
+            nextTile.AreaId = currentAreaId;
             area.Add(nextTile);
         } while (nextTile != tile);
         
         areas.Add(area);
+    }
+}
+
+int GetFenceCount(List<Tile> area)
+{
+    var id = area[0].AreaId;
+    var minX = area.Min(x => x.X);
+    var maxX = area.Max(x => x.X);
+    var minY = area.Min(x => x.Y);
+    var maxY = area.Max(x => x.Y);
+
+    var fences = 0;
+    var current = -1;
+    
+    for (var y = minY; y <= maxY; y++)
+    {
+        for (var x = minX; x <= maxX; x++)
+        {
+            var myId = GetId(x, y);
+            var topId = GetId(x, y - 1);
+
+            if (myId != id || topId == id)
+            {
+                current = -1;
+                continue;
+            }
+
+            if (y == current)
+                continue;
+            
+            fences++;
+            current = y;
+        }
+    }
+
+    current = -1;
+    
+    for (var y = minY; y <= maxY; y++)
+    {
+        for (var x = minX; x <= maxX; x++)
+        {
+            var myId = GetId(x, y);
+            var bottomId = GetId(x, y + 1);
+
+            if (myId != id || bottomId == id)
+            {
+                current = -1;
+                continue;
+            }
+
+            if (y == current)
+                continue;
+            
+            fences++;
+            current = y;
+        }
+    }
+
+    current = -1;
+    
+    for (var x = minX; x <= maxX; x++)
+    {
+        for (var y = minY; y <= maxY; y++)
+        {
+            var myId = GetId(x, y);
+            var leftId = GetId(x - 1, y);
+
+            if (myId != id || leftId == id)
+            {
+                current = -1;
+                continue;
+            }
+
+            if (x == current)
+                continue;
+            
+            fences++;
+            current = x;
+        }
+    }
+
+    current = -1;
+    
+    for (var x = minX; x <= maxX; x++)
+    {
+        for (var y = minY; y <= maxY; y++)
+        {
+            var myId = GetId(x, y);
+            var rightId = GetId(x + 1, y);
+
+            if (myId != id || rightId == id)
+            {
+                current = -1;
+                continue;
+            }
+
+            if (x == current)
+                continue;
+            
+            fences++;
+            current = x;
+        }
+    }
+
+    return fences;
+
+    int GetId(int x, int y)
+    {
+        if (x < 0 || x >= width || y < 0 || y >= height)
+            return -1;
+        return map[y, x].AreaId;
     }
 }
 
@@ -94,6 +217,7 @@ internal class Tile : IEquatable<Tile>
     public int Index { get; set; }
     public int LowLink { get; set; }
     public bool InQueue { get; set; }
+    public int AreaId { get; set; }
 
     private readonly Tile[,] _map;
     private readonly int _width;
