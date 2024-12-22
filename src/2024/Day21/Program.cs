@@ -7,32 +7,37 @@ var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 
 var numPad = new Keypad("789", "456", "123", " 0A");
 var arrowPad = new Keypad(" ^A", "<v>");
-var keyPads = new[] { numPad, arrowPad, arrowPad };
+var keyPadsPart1 = new[] { numPad, arrowPad, arrowPad };
+var keyPadsPart2 = new[] { numPad }.Concat(Enumerable.Repeat(arrowPad, 25)).ToArray();
 
-var part1 = lines.Sum(l => EncodeKeys(l, keyPads) * int.Parse(l[..^1]));
-Console.WriteLine($"Part 1: {part1}");
+Console.WriteLine($"Part 1: {lines.Sum(l => EncodeKeys(l, keyPadsPart1, new Dictionary<(char, char, int), long>()) * int.Parse(l[..^1]))}");
+Console.WriteLine($"Part 2: {lines.Sum(l => EncodeKeys(l, keyPadsPart2, new Dictionary<(char, char, int), long>()) * int.Parse(l[..^1]))}");
 
 return;
 
-int EncodeKeys(string keys, Keypad[] keypads)
+long EncodeKeys(string keys, Keypad[] keypads, Dictionary<(char, char, int), long> cache)
 {
     if (keypads.Length == 0)
         return keys.Length;
 
     var currentKey = 'A';
-    var length = 0;
+    var length = 0L;
 
     foreach (var nextKey in keys)
     {
-        length += EncodeKey(currentKey, nextKey, keypads);
+        length += EncodeKey(currentKey, nextKey, keypads, cache);
         currentKey = nextKey;
     }
     
     return length;
 }
 
-int EncodeKey(char from, char to, Keypad[] keypads)
+long EncodeKey(char from, char to, Keypad[] keypads, Dictionary<(char, char, int), long> cache)
 {
+    var cacheKey = (from, to, keypads.Length);
+    if (cache.TryGetValue(cacheKey, out var result))
+        return result;
+    
     var keypad = keypads[0];
     var fromPos = keypad[from];
     var toPos = keypad[to];
@@ -40,17 +45,19 @@ int EncodeKey(char from, char to, Keypad[] keypads)
     var verticalKeyStrokes = new string(delta.Y > 0 ? 'v' : '^', Math.Abs(delta.Y));
     var horizontalKeyStrokes = new string(delta.X > 0 ? '>' : '<', Math.Abs(delta.X));
 
-    var length = int.MaxValue;
+    var length = long.MaxValue;
     
     if (keypad.Contains(fromPos.X, toPos.Y))
     {
-        length = Math.Min(length, EncodeKeys($"{verticalKeyStrokes}{horizontalKeyStrokes}A", keypads[1..]));
+        length = Math.Min(length, EncodeKeys($"{verticalKeyStrokes}{horizontalKeyStrokes}A", keypads[1..], cache));
     }
 
     if (keypad.Contains(toPos.X, fromPos.Y))
     {
-        length = Math.Min(length, EncodeKeys($"{horizontalKeyStrokes}{verticalKeyStrokes}A", keypads[1..]));
+        length = Math.Min(length, EncodeKeys($"{horizontalKeyStrokes}{verticalKeyStrokes}A", keypads[1..], cache));
     }
+    
+    cache.Add(cacheKey, length);
     
     return length;
 }
