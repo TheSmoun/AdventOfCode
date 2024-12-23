@@ -16,28 +16,19 @@ foreach (var line in lines)
     graph.GetOrAdd(parts[1], []).Add(parts[0]);
 }
 
-var triangles = new HashSet<(string, string, string)>();
-foreach (var n1 in graph.Keys)
-{
-    foreach (var n2 in graph[n1])
-    {
-        foreach (var n3 in graph[n1].Intersect(graph[n2]))
-        {
-            var nodes = new List<string> { n1, n2, n3 };
-            if (nodes.All(n => n[0] != 't'))
-                continue;
-            
-            nodes.Sort();
-            triangles.Add((nodes[0], nodes[1], nodes[2]));
-        }
-    }
-}
-
-Console.WriteLine($"Part 1: {triangles.Count}");
-
 var cliques = new List<HashSet<string>>();
 BronKerbosch([], [..graph.Keys], []);
 
+var part1 = cliques
+    .Where(c => c.Count >= 3)
+    .SelectMany(c => c.ThreePermutations())
+    .Where(p => p.Any(c => c[0] == 't'))
+    .Select(c => c.ToTuple())
+    .Distinct()
+    .Count();
+
+Console.WriteLine($"Part 1: {part1}");
+    
 var part2 = string.Join(',', cliques.MaxBy(c => c.Count)!.Order());
 Console.WriteLine($"Part 2: {part2}");
 
@@ -58,5 +49,30 @@ void BronKerbosch(HashSet<string> r, HashSet<string> p, HashSet<string> x)
         
         p.Remove(v);
         x.Add(v);
+    }
+}
+
+internal static class HashSetExtensions
+{
+    public static IEnumerable<HashSet<string>> ThreePermutations(this HashSet<string> set)
+    {
+        foreach (var a in set)
+        {
+            foreach (var b in set)
+            {
+                foreach (var c in set)
+                {
+                    var permutation = new HashSet<string> { a, b, c };
+                    if (permutation.Count == 3)
+                        yield return permutation;
+                }
+            }
+        }
+    }
+
+    public static (string, string, string) ToTuple(this HashSet<string> set)
+    {
+        var list = set.Order().ToList();
+        return (list[0], list[1], list[2]);
     }
 }
