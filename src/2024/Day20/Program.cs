@@ -1,6 +1,4 @@
-﻿using ConsoleTables;
-
-#if DEBUG
+﻿#if DEBUG
 var lines = File.ReadAllLines("input.txt");
 #else
 using var reader = new StreamReader(Console.OpenStandardInput(), Console.InputEncoding);
@@ -48,8 +46,6 @@ for (var y = 0; y < height; y++)
 
 PerformAStar();
 
-// Console.WriteLine(MapToString());
-
 var part1 = 0;
 foreach (var (y, x) in cheats)
 {
@@ -60,6 +56,39 @@ foreach (var (y, x) in cheats)
 }
 
 Console.WriteLine($"Part 1: {part1}");
+
+var raceTrack = new List<(int Y, int X, int Distance)>();
+for (var y = 0; y < height; y++)
+{
+    for (var x = 0; x < width; x++)
+    {
+        if (map[y, x] != int.MaxValue)
+        {
+            raceTrack.Add((y, x, map[y, x]));
+        }
+    }
+}
+
+var part2 = 0;
+for (var y = 0; y < raceTrack.Count; y++)
+{
+    var (y0, x0, d0) = raceTrack[y];
+    
+    for (var x = 0; x < raceTrack.Count; x++)
+    {
+        if (x == y)
+            continue;
+
+        var (y1, x1, d1) = raceTrack[x];
+        var distance = Math.Abs(y1 - y0) + Math.Abs(x1 - x0);
+        if (distance <= 20 && d1 - d0 - distance >= 100)
+        {
+            part2++;
+        }
+    }
+}
+
+Console.WriteLine($"Part 2: {part2}");
 
 return;
 
@@ -114,21 +143,4 @@ bool TestCheat(int y, int x)
         
         return Math.Abs(score1 - score2) >= 102;
     }
-}
-
-string MapToString()
-{
-    var table = new ConsoleTable(Enumerable.Range(-1, width + 1).Select(x => x >= 0 ? "X" + x : string.Empty).ToArray());
-
-    for (var y = 0; y < height; y++)
-    {
-        table.AddRow(Enumerable.Range(-1, width + 1).Select(x =>
-        {
-            if (x < 0) return "Y" + y;
-            if (map[y, x] == int.MaxValue) return '#';
-            return (object) map[y, x];
-        }).ToArray());
-    }
-
-    return table.ToString();
 }
