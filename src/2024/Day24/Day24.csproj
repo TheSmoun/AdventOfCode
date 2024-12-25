@@ -13,4 +13,8 @@
         <PublishTrimmed>true</PublishTrimmed>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="morelinq" Version="4.3.0" />
+    </ItemGroup>
+
 </Project>

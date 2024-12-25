@@ -10,7 +10,6 @@ var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
 var wires = new ConcurrentDictionary<string, Wire>();
-var gates = new ConcurrentDictionary<string, LogicGate>();
 
 var i = 0;
 string line;
@@ -28,27 +27,71 @@ while (i < lines.Length && (line = lines[i++]) != string.Empty)
     var rightInputWire = wires.GetOrAdd(rightInput, w => new Wire(rightInput));
     var outputWire = wires.GetOrAdd(output, w => new Wire(output));
 
-    LogicGate logicGate = gate switch
+    LogicGate _ = gate switch
     {
         "AND" => new AndGate(leftInputWire, rightInputWire, outputWire),
         "OR" => new OrGate(leftInputWire, rightInputWire, outputWire),
         "XOR" => new XorGate(leftInputWire, rightInputWire, outputWire),
         _ => throw new UnreachableException()
     };
-    
-    gates[output] = logicGate;
 }
 
-var part1 = 0L;
-i = 0;
-while (wires.TryGetValue('z' + i.ToString().PadLeft(2, '0'), out var wire))
+var device = new MonitoringDevice(wires);
+
+Console.WriteLine($"Part 1: {device.GetValue('z')}");
+
+for (var bit = 0; bit < 45; bit++)
 {
-    var value = wire.GetOrComputeValue();
-    part1 |= value << i;
-    i++;
+    foreach (var wire in wires.Values)
+    {
+        if (wire.Name[0] == 'x' || wire.Name[0] == 'y')
+        {
+            wire.Value = 0;
+        }
+        else
+        {
+            wire.Value = null;
+        }
+    }
+
+    var x = 1L << bit;
+    var y = 1L << bit;
+    var z = x + y;
+
+    wires[Wire.ConstructName('x', bit)].Value = 1;
+    wires[Wire.ConstructName('y', bit)].Value = 1;
+    
+    var result = device.GetValue('z');
+    if (z != result)
+    {
+        Console.WriteLine($"Mismatch at bit {bit}");
+    }
 }
 
-Console.WriteLine($"Part 1: {part1}");
+internal class MonitoringDevice
+{
+    private readonly ConcurrentDictionary<string, Wire> _wires;
+
+    public MonitoringDevice(ConcurrentDictionary<string, Wire> wires)
+    {
+        _wires = wires;
+    }
+    
+    public long GetValue(char prefix)
+    {
+        var value = 0L;
+        var i = 0;
+        
+        while (_wires.TryGetValue(Wire.ConstructName(prefix, i), out var wire))
+        {
+            var bit = wire.GetOrComputeValue();
+            value |= bit << i;
+            i++;
+        }
+
+        return value;
+    }
+}
 
 internal class Wire(string name, long? value = null)
 {
@@ -56,8 +99,12 @@ internal class Wire(string name, long? value = null)
     public long? Value { get; set; } = value;
     
     public LogicGate? Source { get; set; }
-    public List<LogicGate> Sinks { get; } = [];
 
+    public static string ConstructName(char prefix, int bit)
+    {
+        return prefix + bit.ToString().PadLeft(2, '0');
+    }
+    
     public long GetOrComputeValue()
     {
         EnsureValue();
@@ -74,6 +121,11 @@ internal class Wire(string name, long? value = null)
         
         Source.CalculateOutput();
     }
+
+    public override string ToString()
+    {
+        return Name;
+    }
 }
 
 internal abstract class LogicGate
@@ -88,8 +140,6 @@ internal abstract class LogicGate
         RightInput = rightInput;
         Output = output;
         
-        LeftInput.Sinks.Add(this);
-        RightInput.Sinks.Add(this);
         Output.Source = this;
     }
     
