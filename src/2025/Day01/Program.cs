@@ -7,30 +7,50 @@ var lines = File.ReadAllLines("input.txt");
     var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
-var leftNumbers = lines.Select(l => int.Parse(l.AsSpan().Slice(0, 5))).ToList();
-leftNumbers.Sort();
-
-var rightNumbers = lines.Select(l => int.Parse(l.AsSpan().Slice(8, 5))).ToList();
-rightNumbers.Sort();
-
-var difference = 0;
-for (var i = 0; i < leftNumbers.Count; i++)
+var instructions = lines.Select(l =>
 {
-    difference += Math.Abs(rightNumbers[i] - leftNumbers[i]);
+    var direction = l[0] == 'L' ? -1 : 1;
+    var value = int.Parse(l[1..]);
+    return direction * value;
+}).ToList();
+
+const int size = 100;
+var dial = 50;
+var zeros = 0;
+
+foreach (var instruction in instructions)
+{
+    dial = Mod(dial + instruction, size);
+    if (dial == 0)
+        zeros++;
 }
 
-Console.WriteLine("Part 1: " + difference);
+Console.WriteLine("Part 1: " + zeros);
 
-var rightNumberCount = new Dictionary<int, int>();
-foreach (var rightNumber in rightNumbers)
+dial = 50;
+zeros = 0;
+
+foreach (var instruction in instructions)
 {
-    rightNumberCount[rightNumber] = rightNumberCount.GetValueOrDefault(rightNumber, 0) + 1;
+    var direction = Math.Sign(instruction);
+    var target = dial + instruction;
+
+    for (var i = dial; i != target; i += direction)
+    {
+        if (i % size == 0)
+        {
+            zeros++;
+        }
+    }
+    
+    dial = Mod(target, size);
 }
 
-var similarity = 0;
-foreach (var leftNumber in leftNumbers)
-{
-    similarity += leftNumber * rightNumberCount.GetValueOrDefault(leftNumber, 0);
-}
+Console.WriteLine("Part 2: " + zeros);
 
-Console.WriteLine("Part 2: " + similarity);
+return;
+
+static int Mod(int x, int m)
+{
+    return (x % m + m) % m;
+}
