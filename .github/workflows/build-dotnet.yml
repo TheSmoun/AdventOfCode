@@ -24,4 +24,4 @@ jobs:
         with:
           name: runnable
           path: |
-            src/${{ matrix.year }}/Day${{ matrix.day }}/bin/Release/net9.0/linux-x64/publish
+            src/${{ matrix.year }}/Day${{ matrix.day }}/bin/Release/net10.0/linux-x64/publish
