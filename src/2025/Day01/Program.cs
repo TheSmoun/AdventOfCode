@@ -32,18 +32,16 @@ zeros = 0;
 
 foreach (var instruction in instructions)
 {
-    var direction = Math.Sign(instruction);
-    var target = dial + instruction;
-
-    for (var i = dial; i != target; i += direction)
+    if (instruction >= 0)
     {
-        if (i % size == 0)
-        {
-            zeros++;
-        }
+        zeros += (dial + instruction) / size;
+    }
+    else
+    {
+        zeros += (size - dial - instruction) / 100 - (dial == 0 ? 1 : 0);
     }
     
-    dial = Mod(target, size);
+    dial = Mod(dial + instruction, size);
 }
 
 Console.WriteLine("Part 2: " + zeros);
