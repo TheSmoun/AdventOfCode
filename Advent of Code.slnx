@@ -1,0 +1,48 @@
+<Solution>
+  <Folder Name="/.github/" />
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/build-dotnet.yml" />
+  </Folder>
+  <Folder Name="/SolutionItems/">
+    <File Path=".gitignore" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/AoC.2023/AoC.2023.csproj" />
+    <Project Path="src/AoC.Shared/AoC.Shared.csproj" />
+  </Folder>
+  <Folder Name="/src/2024/">
+    <Project Path="src/2024/Day01/Day01.csproj" />
+    <Project Path="src/2024/Day02/Day02.csproj" />
+    <Project Path="src/2024/Day03/Day03.csproj" />
+    <Project Path="src/2024/Day04/Day04.csproj" />
+    <Project Path="src/2024/Day05/Day05.csproj" />
+    <Project Path="src/2024/Day06/Day06.csproj" />
+    <Project Path="src/2024/Day07/Day07.csproj" />
+    <Project Path="src/2024/Day08/Day08.csproj" />
+    <Project Path="src/2024/Day09/Day09.csproj" />
+    <Project Path="src/2024/Day10/Day10.csproj" />
+    <Project Path="src/2024/Day11/Day11.csproj" />
+    <Project Path="src/2024/Day12/Day12.csproj" />
+    <Project Path="src/2024/Day13/Day13.csproj" />
+    <Project Path="src/2024/Day14/Day14.csproj" />
+    <Project Path="src/2024/Day15/Day15.csproj" />
+    <Project Path="src/2024/Day16/Day16.csproj" />
+    <Project Path="src/2024/Day17/Day17.csproj" />
+    <Project Path="src/2024/Day18/Day18.csproj" />
+    <Project Path="src/2024/Day19/Day19.csproj" />
+    <Project Path="src/2024/Day20/Day20.csproj" />
+    <Project Path="src/2024/Day21/Day21.csproj" />
+    <Project Path="src/2024/Day22/Day22.csproj" />
+    <Project Path="src/2024/Day23/Day23.csproj" />
+    <Project Path="src/2024/Day24/Day24.csproj" />
+    <Project Path="src/2024/Day25/Day25.csproj" />
+  </Folder>
+  <Folder Name="/src/2025/">
+    <Project Path="src/2025/Day01/Day01.csproj" />
+    <Project Path="src/2025/Day02/Day02.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/InputTest/InputTest.csproj" />
+  </Folder>
+</Solution>
