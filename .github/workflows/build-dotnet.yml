@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         year: ['2025']
-        day: ['01']
+        day: ['02']
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET
