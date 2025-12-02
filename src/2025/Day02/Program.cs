@@ -9,7 +9,7 @@ var lines = File.ReadAllLines("input.txt");
     var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
-var idRanges = lines[0].Split(',').Select(r =>
+var ids = lines[0].Split(',').Select(r =>
 {
     var parts = r.Split('-');
     return new IdRange
@@ -17,9 +17,7 @@ var idRanges = lines[0].Split(',').Select(r =>
         Min = long.Parse(parts[0]),
         Max = long.Parse(parts[1]),
     };
-}).ToList();
-
-var ids = idRanges.SelectMany(r => r.GetIds()).ToList();
+}).SelectMany(r => r.GetIds()).ToList();
 
 var sum1 = 0L;
 var sum2 = 0L;
