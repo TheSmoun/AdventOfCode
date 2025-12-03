@@ -44,7 +44,7 @@ long GetTotalJoltage(int digits)
                 }
             }
 
-            joltage += maxDigit * Math.Max((long)Math.Pow(10L, d), 1);
+            joltage += maxDigit * (long)Math.Pow(10L, d);
             searchStart = maxIndex + 1;
         }
 
