@@ -42,6 +42,9 @@ long GetTotalJoltage(int digits)
                     maxDigit = digit;
                     maxIndex = i;
                 }
+
+                if (digit == 9)
+                    break;
             }
 
             joltage += maxDigit * (long)Math.Pow(10L, d);
