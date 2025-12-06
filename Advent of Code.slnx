@@ -44,6 +44,7 @@
     <Project Path="src/2025/Day03/Day03.csproj" />
     <Project Path="src/2025/Day04/Day04.csproj" />
     <Project Path="src/2025/Day05/Day05.csproj" />
+    <Project Path="src/2025/Day06/Day06.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/InputTest/InputTest.csproj" />
