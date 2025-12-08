@@ -11,62 +11,40 @@ var start = Stopwatch.GetTimestamp();
     var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
-var startPos = 0;
-var splitters = new List<List<int>>();
+var timelines = new long[lines[0].Length];
 
 var firstLine = lines[0];
-for (var x = 0; x < firstLine.Length; x++)
+for (var i = 0; i < firstLine.Length; i++)
 {
-    var c = firstLine[x];
+    var c = firstLine[i];
     if (c == 'S')
     {
-        startPos = x;
+        timelines[i] = 1;
     }
-}
-
-for (var y = 2; y < lines.Length; y += 2)
-{
-    var line = lines[y];
-    var splittersOnLine = new List<int>();
-    
-    for (var x = 0; x < line.Length; x++)
-    {
-        var c = line[x];
-        if (c == '^')
-        {
-            splittersOnLine.Add(x);
-        }
-    }
-    
-    splitters.Add(splittersOnLine);
 }
 
 var splits = 0;
-var timelines = new Dictionary<int, long> { { startPos, 1 } };
-
-foreach (var splittersOnLine in splitters)
+for (var i = 2; i < lines.Length; i += 2)
 {
-    var newTimelines = new Dictionary<int, long>();
-    
-    foreach (var (beam, value) in timelines)
+    var line = lines[i];
+    for (var t = 0; t < timelines.Length; t++)
     {
-        if (splittersOnLine.Contains(beam))
+        var timeline = timelines[t];
+        if (timeline == 0)
+            continue;
+        
+        if (line[t] == '^')
         {
             splits++;
-            CollectionsMarshal.GetValueRefOrAddDefault(newTimelines, beam - 1, out _) += value;
-            CollectionsMarshal.GetValueRefOrAddDefault(newTimelines, beam + 1, out _) += value;
-        }
-        else
-        {
-            CollectionsMarshal.GetValueRefOrAddDefault(newTimelines, beam, out _) += value;
+            timelines[t - 1] += timeline;
+            timelines[t + 1] += timeline;
+            timelines[t] = 0;
         }
     }
-    
-    timelines = newTimelines;
 }
 
 Console.WriteLine("Part 1: " + splits);
-Console.WriteLine("Part 2: " + timelines.Values.Sum());
+Console.WriteLine("Part 2: " + timelines.Sum());
 
 #if DEBUG
 var elapsedTime = Stopwatch.GetElapsedTime(start);
