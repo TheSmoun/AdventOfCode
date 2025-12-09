@@ -8,6 +8,7 @@
     <File Path="global.json" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/AdventOfCode.Library/AdventOfCode.Library.csproj" />
     <Project Path="src/AoC.2023/AoC.2023.csproj" />
     <Project Path="src/AoC.Shared/AoC.Shared.csproj" />
   </Folder>
@@ -47,6 +48,7 @@
     <Project Path="src/2025/Day06/Day06.csproj" />
     <Project Path="src/2025/Day07/Day07.csproj" />
     <Project Path="src/2025/Day08/Day08.csproj" />
+    <Project Path="src/2025/Day09/Day09.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/InputTest/InputTest.csproj" />
