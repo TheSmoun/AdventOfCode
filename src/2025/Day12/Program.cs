@@ -40,10 +40,4 @@ Console.WriteLine("End: " + elapsedTime);
 #endif
 
 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-int Parse2DigitInt(ReadOnlySpan<char> s)
-{
-    var i = 0;
-    i += 10 * (s[0] - '0');
-    i += s[1] - '0';
-    return i;
-}
+int Parse2DigitInt(ReadOnlySpan<char> s) => 10 * (s[0] - '0') + (s[1] - '0');
