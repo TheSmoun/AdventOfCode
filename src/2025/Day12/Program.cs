@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using MoreLinq;
+using System.Runtime.CompilerServices;
 
 Console.WriteLine("GO");
 
@@ -11,14 +11,25 @@ var start = Stopwatch.GetTimestamp();
     var lines = reader.ReadToEnd().TrimEnd('\n').Split('\n');
 #endif
 
-var parts = lines.Split(string.IsNullOrWhiteSpace).Select(c => c.ToList()).ToList();
-var count = parts[^1].Count(l =>
+var count = 0;
+for (var i = 30; i < lines.Length; i++)
 {
-    var lr = l.Split(':');
-    var wh = lr[0].Split('x').Select(int.Parse).ToArray();
-    var indexes = lr[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
-    return indexes.Sum() * 7 < wh[0] * wh[1];
-});
+    var line = lines[i].AsSpan();
+    var width = Parse2DigitInt(line.Slice(0, 2));
+    var height = Parse2DigitInt(line.Slice(3, 2));
+    var area = width * height;
+
+    var presentsArea = 0;
+    for (var j = 7; j < line.Length; j += 3)
+    {
+        presentsArea += Parse2DigitInt(line.Slice(j, 2)) * 7;
+    }
+
+    if (presentsArea < area)
+    {
+        count++;
+    }
+}
 
 Console.WriteLine("Part 1: " + count);
 Console.WriteLine("Part 2: " + string.Empty);
@@ -27,3 +38,12 @@ Console.WriteLine("Part 2: " + string.Empty);
 var elapsedTime = Stopwatch.GetElapsedTime(start);
 Console.WriteLine("End: " + elapsedTime);
 #endif
+
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+int Parse2DigitInt(ReadOnlySpan<char> s)
+{
+    var i = 0;
+    i += 10 * (s[0] - '0');
+    i += s[1] - '0';
+    return i;
+}
